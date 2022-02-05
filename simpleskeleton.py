@@ -13,8 +13,11 @@ def parse_args():
     return parser.parse_args()
 
 
-class Fail(Exception):
-    pass
+def main():
+    if ARGS.verbose:
+        print("verbose mode enabled, will display abspath")
+    for path in ARGS.paths:
+        print(worker(path))
 
 
 def scantree(path, follow_symlinks=False, recursive=True):
@@ -39,24 +42,29 @@ def none_throws(optional: Optional[_T], message: str = "Unexpected `None`") -> _
 
 
 class ParsedPath(NamedTuple):
+    ok: bool
+    input_path: str
     basename: str
     abspath: str
 
 
 def parse_path(path) -> ParsedPath:
-    return ParsedPath(basename=os.path.basename(path), abspath=os.path.abspath(path))
+    result = dict(ok=False, input_path=path)
+    result['basename'] = os.path.basename(path)
+    result['abspath'] = os.path.abspath(path)
+    result['ok'] = True
+    return ParsedPath(**result)
 
 
 def worker(path) -> str:
     ppath = parse_path(path)
+    if ARGS.verbose:
+        print(ppath)
     return ppath.abspath if ARGS.verbose else ppath.basename
 
 
-def main():
-    if ARGS.verbose:
-        print("verbose mode enabled, will display abspath")
-    for path in ARGS.paths:
-        print(worker(path))
+class Fail(Exception):
+    pass
 
 
 if __name__ == '__main__':
