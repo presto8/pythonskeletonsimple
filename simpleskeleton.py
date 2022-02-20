@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import fcntl
 import os
 import sys
 from typing import NamedTuple, Optional, TypeVar
@@ -14,10 +15,20 @@ def parse_args():
 
 
 def main():
+    mutex()
     if ARGS.verbose:
         print("verbose mode enabled, will display abspath")
     for path in ARGS.paths:
         print(worker(path))
+
+
+def mutex():
+    this_script = os.path.realpath(__file__)
+    lockfd = os.open(this_script, os.O_RDONLY)
+    try:
+        fcntl.flock(lockfd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        raise Fail(f"{this_script} is already running")
 
 
 def scantree(path, follow_symlinks=False, recursive=True):
