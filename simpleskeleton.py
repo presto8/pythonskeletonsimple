@@ -3,6 +3,7 @@
 import argparse
 import fcntl
 import os
+import subprocess
 import sys
 from typing import NamedTuple, Optional, TypeVar
 
@@ -72,6 +73,10 @@ def worker(path) -> str:
     if ARGS.verbose:
         print(ppath)
     return ppath.abspath if ARGS.verbose else ppath.basename
+
+
+def run(*args):
+    return subprocess.run(args, capture_output=True, text=True)
 
 
 class Fail(Exception):
