@@ -7,9 +7,17 @@ import subprocess
 import sys
 from typing import NamedTuple, Optional, TypeVar
 
+HELP = """
+simpleskeleton.py by Preston Hunt <me@prestonhunt.com>
+https://github.com/presto8/pythonskeletonsimple
+
+A simple single-file Python boilerplate for writing simple command-line shell
+scripts.
+"""
+
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=HELP, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('paths', nargs='*', help='paths to process')
     parser.add_argument('--verbose', default=False, action='store_true', help='show more detailed messages')
     return parser.parse_args()
