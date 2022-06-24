@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""A collection of useful modules. Do not import from this file. Instead, copy
+the code into the main project file. This will allow the main project to be
+used as a standalone program."""
+
 import fcntl
 import os
 from typing import Optional, TypeVar

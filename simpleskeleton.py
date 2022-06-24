@@ -5,7 +5,7 @@ import fcntl
 import os
 import subprocess
 import sys
-from typing import NamedTuple, Optional, TypeVar
+from typing import NamedTuple
 
 HELP = """
 simpleskeleton.py by Preston Hunt <me@prestonhunt.com>
@@ -47,18 +47,6 @@ def scantree(path, follow_symlinks=False, recursive=True):
             yield from scantree(entry.path, *passthru)
         else:
             yield entry
-
-
-# From: https://github.com/facebook/pyre-check/blob/master/pyre_extensions/__init__.py#L7-L8
-_T = TypeVar("_T")
-
-
-def none_throws(optional: Optional[_T], message: str = "Unexpected `None`") -> _T:
-    """Convert an optional to its value. Raises an `AssertionError` if the
-    value is `None`"""
-    if optional is None:
-        raise AssertionError(message)
-    return optional
 
 
 class ParsedPath(NamedTuple):
