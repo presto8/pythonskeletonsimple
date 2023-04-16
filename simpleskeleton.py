@@ -18,14 +18,39 @@ from typing import NamedTuple
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+
+    subparsers = parser.add_subparsers(dest='command')
+    commands = []
+    def add_command(name, *args, **kwargs):
+        commands.append(name)
+        return subparsers.add_parser(name, *args, **kwargs)
+
+    subcmd = add_command('hello', help='say hello')
+    subcmd.add_argument('--name', type=str)
+
+    add_command('bye', help='say bye')
+
+    # uncomment next line to disable partial commands, e.g., "h" or "he" will match "hello"
+    resolve_partial_command(commands)
+
     parser.add_argument('paths', nargs='*', help='paths to process')
     parser.add_argument('--verbose', default=False, action='store_true', help='show more detailed messages')
     parser.add_argument('--database', default="data.db", help='location of persistent data storage')
+
     return parser.parse_args()
 
 
 def main():
     mutex()
+
+    print("parsed ARGS:", ARGS)
+
+    try:
+        cmd_func = globals()["cmd_" + ARGS.command]
+    except KeyError:
+        raise Fail("could not find handler for:", ARGS.command)
+
+    cmd_func()
 
     if ARGS.verbose:
         print("verbose mode enabled, will display abspath")
@@ -39,6 +64,32 @@ def main():
         for path in ARGS.paths:
             db['paths'].append(path)
             print(worker(path))
+
+
+def cmd_hello():
+    name = ARGS.name or "stranger"
+    print(f"hello, {name}!")
+
+
+def resolve_partial_command(commands: list[str]):
+    try:
+        command = sys.argv[1]
+    except IndexError:
+        sys.argv.append("--help")
+        return
+
+    if command in commands:
+        return command
+
+    possibles = []
+    for maybe_cmd in commands:
+        if maybe_cmd.startswith(command):
+            possibles.append(maybe_cmd)
+
+    if len(possibles) != 1:
+        return
+
+    sys.argv[1] = possibles[0]
 
 
 def mutex():
