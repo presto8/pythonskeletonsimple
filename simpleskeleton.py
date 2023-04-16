@@ -10,6 +10,7 @@ scripts.
 import argparse
 import fcntl
 import os
+import shelve
 import subprocess
 import sys
 from typing import NamedTuple
@@ -19,15 +20,25 @@ def parse_args():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('paths', nargs='*', help='paths to process')
     parser.add_argument('--verbose', default=False, action='store_true', help='show more detailed messages')
+    parser.add_argument('--database', default="data.db", help='location of persistent data storage')
     return parser.parse_args()
 
 
 def main():
     mutex()
+
     if ARGS.verbose:
         print("verbose mode enabled, will display abspath")
-    for path in ARGS.paths:
-        print(worker(path))
+
+    with shelve.open(ARGS.database, writeback=True) as db:
+        if not 'paths' in db:
+            db['paths'] = []
+
+        print("previous paths:", db['paths'])
+
+        for path in ARGS.paths:
+            db['paths'].append(path)
+            print(worker(path))
 
 
 def mutex():

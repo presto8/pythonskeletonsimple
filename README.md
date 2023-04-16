@@ -22,6 +22,8 @@ This project shows some simple approaches to writing modular code:
 
 * Define and catch a `Fail` exception to easily handle fatal script errors.
 
+* Use `shelve` module for data persistence.
+
 * Implement helper functions and use a `NamedTuple` to store the results. Since
   NamedTuples are immutable, store intermediate results in a `dict` and then
   initialize the NamedTuple from the dict when returning from the helper
